@@ -35,7 +35,7 @@ global %1_stub
 %1_stub:
     pushad          ; Сохраняем EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI
 
-    mov ax, 0x10    ; Твой Kernel Data Segment (из GDT)
+    mov ax, 0x10
     mov ds, ax
     mov es, ax
     mov fs, ax
@@ -94,6 +94,7 @@ gdt_flush:
     jmp 0x08:.flush
 .flush:
     ret
+
 
 
 

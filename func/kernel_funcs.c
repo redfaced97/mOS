@@ -163,14 +163,12 @@ void kprintf(const char *fmt, ...) {
 }
 
 void _klog(const char *str, int status) {
-    // Используем %l для system_tick (так как это long)
-    kprintf("\033[90m[%l] \033[0m", (long)system_tick);
 
     switch (status) {
-        case 0: kprintf("\033[32m[  OK  ]\033[0m %s\n", str); break;
-        case 1: kprintf("\033[34m[ INFO ]\033[0m %s\n", str); break;
-        case 2: kprintf("\033[33m[ WARN ]\033[0m %s\n", str); break;
-        case 3: kprintf("\033[31m[ERROR ]\033[0m %s\n", str); break;
+        case 0: kprintf("\033[37m[  \033[92mOK\033[37m  ]\033[0m %s\n", str); break;
+        case 1: kprintf("\033[37m[ \033[92mINFO\033[37m ]\033[0m %s\n", str); break;
+        case 2: kprintf("\033[37m[ \033[93mWARN\033[37m ]\033[0m %s\n", str); break;
+        case 3: kprintf("\033[37m[\033[91mFAILED\033[37m]\033[0m %s\n", str); break;
         default: kprintf("[ LOG  ] %s\n", str); break;
     }
 }

@@ -16,21 +16,19 @@ void app();
 
 
 void kinit() {
-    // 1. Сначала GDT (фундамент)
-    if (init_gdt() != 0) return;
 
-    // 2. Инициализация видео, чтобы видеть ошибки
     video_clear(VIDEO_COLOR_BLACK);
     video_set_color(VIDEO_COLOR_WHITE, VIDEO_COLOR_BLACK);
-    kprint("[  OK  ] GDT initialized\n");
 
-    // 3. Настройка IDT (прерывания)
-    // ВАЖНО: sti должен быть в самом конце init_idt()
-    if (init_idt() != 0) {
-        kprint("[ FAIL ] IDT initialization failed!\n");
+    if (init_gdt() == 0) {
+      _klog("GDT ready!", 1);
+    }
+
+
+    if (init_idt() == 0) {
+        _klog("IDT ready!", 1);
         return;
     }
-    kprint("[  OK  ] Interrupts & PIC ready\n");
 
     // 4. Только теперь настраиваем частоту таймера
     // Прерывания уже настроены в IDT, так что это безопасно
@@ -73,5 +71,5 @@ void app() {
         }
         __asm__ __volatile__("hlt");
     }
-
+    __asm__ __volatile__("hlt");
 }

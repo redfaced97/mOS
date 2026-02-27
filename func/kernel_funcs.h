@@ -9,4 +9,6 @@ char* uint_to_char(unsigned int n);
 char* ulong_to_char(unsigned long n);
 char* ushort_to_char(unsigned short n);
 
+void _klog(const char *str, int status);
+
 #endif
