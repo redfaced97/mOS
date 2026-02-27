@@ -1,4 +1,4 @@
-#include "../sys/ports.h"
+#include "../../sys/ports.h"
 #include "video.h"
 
 #define MAX_ANSI_PARAMS 4

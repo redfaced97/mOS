@@ -1,5 +1,5 @@
-#include "../sys/ports.h"
-#include "../vga/video.h"
+#include "../../sys/ports.h"
+#include "../../drivers/vga/video.h"
 #include "keyboard.h"
 
 char input_buffer[INPUT_BUFFER_SIZE];

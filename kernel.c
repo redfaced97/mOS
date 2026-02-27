@@ -6,8 +6,8 @@
 #include "sys/gdt.h"
 #include "sys/idt.h"
 
-#include "vga/video.h"
-#include "keyboard/keyboard.h"
+#include "drivers/vga/video.h"
+#include "drivers/keyboard/keyboard.h"
 #include "func/kernel_funcs.h"
 
 unsigned int system_tick = 0;
@@ -21,28 +21,28 @@ void kinit() {
     video_set_color(VIDEO_COLOR_WHITE, VIDEO_COLOR_BLACK);
 
     if (init_gdt() == 0) {
-      _klog("GDT ready!", 1);
+      _klog("GDT ready!", 0);
     }
 
 
     if (init_idt() == 0) {
-        _klog("IDT ready!", 1);
-        return;
+        _klog("IDT ready!", 0);
     }
 
-    // 4. Только теперь настраиваем частоту таймера
-    // Прерывания уже настроены в IDT, так что это безопасно
     set_timer(100);
 
-    // 5. Переходим в оболочку
+    __asm__ __volatile__("sti");
+
     app();
+    while(1) {
+      __asm__ __volatile__("hlt");
+    }
 }
 
 void app() {
 
     video_set_color(VIDEO_COLOR_WHITE, VIDEO_COLOR_BLACK);
     clear_input_buffer();
-    kprint("\033[93mError: \033[32mSuccess \033[0mNormal\n");
     kprint("\nmOS kernel Shell ready. Type 'help'.\n> ");
 
     while(1) {
@@ -71,5 +71,4 @@ void app() {
         }
         __asm__ __volatile__("hlt");
     }
-    __asm__ __volatile__("hlt");
 }

@@ -56,6 +56,8 @@ irq0_stub:
     mov ds, ax
     mov es, ax
     call timer_handler
+
+
     popad
     iretd
 

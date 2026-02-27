@@ -1,7 +1,6 @@
 
 #include "../kernel.h"
 #include "../func/kernel_funcs.h"
-#include "../vga/video.h"
 
 #include "idt.h"
 #include "../sys/ports.h"
@@ -67,8 +66,6 @@ int init_idt() {
     outb(0xA1, 0xFF);
 
     // 6. Самый последний шаг - разрешаем прерывания
-    __asm__ __volatile__("sti");
-
     return 0;
 }
 

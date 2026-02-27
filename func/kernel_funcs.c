@@ -1,7 +1,7 @@
 #include "../kernel.h"
 
 #include "kernel_funcs.h"
-#include "../vga/video.h"
+#include "../drivers/vga/video.h"
 
 
 typedef __builtin_va_list va_list;
