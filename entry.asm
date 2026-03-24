@@ -3,7 +3,7 @@ bits 32
 section .bss
 align 16
 stack_bottom:
-    resb 16384 ; 16 КБ под стек
+    resb 16384
 stack_top:
 
 section .text
@@ -21,19 +21,19 @@ global gdt_flush
 global generic_stub
 
 extern kinit
-extern timer_handler
+extern IRQ0_handler
 extern keyboard_handler_main
 
 start:
-    cli                     ; отключаем прерывания
-    mov esp, stack_top      ; настраиваем стек
-    call kinit              ; переходим в C‑ядро
-    hlt                     ; halt системы
+    cli
+    mov esp, stack_top
+    call kinit
+    hlt
 
 %macro IRQ_HANDLER 1
 global %1_stub
 %1_stub:
-    pushad          ; Сохраняем EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI
+    pushad
 
     mov ax, 0x10
     mov ds, ax
@@ -41,21 +41,20 @@ global %1_stub
     mov fs, ax
     mov gs, ax
 
-    extern %1_handler_main ; Или как называются твои функции в C
-    call %1_handler_main   ; Для таймера это будет irq0_handler_main
-
+    extern %1_handler_main
+    call %1_handler_main
     popad
-    iretd           ; Используем 32-битную версию возврата
+    iretd
 %endmacro
 
-    ; --- Исправляем твои стабы вручную для надежности ---
 
 irq0_stub:
     pushad
     mov ax, 0x10
     mov ds, ax
     mov es, ax
-    call timer_handler
+
+    call IRQ0_handler
 
 
     popad

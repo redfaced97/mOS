@@ -30,4 +30,4 @@ clean:
 	   rm -f kernel
 
 run: kernel
-	qemu-system-x86_64 -kernel kernel --enable-kvm -m 512 -monitor stdio
+	       qemu-system-x86_64 -kernel kernel --enable-kvm -m 512 -monitor stdio -hda hdd.img

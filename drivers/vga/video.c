@@ -88,10 +88,10 @@ static void handle_sgr() {
         int p = ansi_params[i];
 
         if (p == 0) {
-            current_color = 0x0F; // Reset to White on Black
+            current_color = 0x0F;
         }
         else if (p == 1) {
-            // Делаем текущий цвет текста ярким (устанавливаем 3-й бит)
+            // Яркий цвет
             current_color |= 0x08;
         }
         else if (p >= 30 && p <= 37) {
@@ -105,7 +105,7 @@ static void handle_sgr() {
             current_color = (current_color & 0x0F) | (ansi_to_vga[color_idx] << 4);
         }
         else if (p >= 90 && p <= 97) {
-            // Яркий текст (90-97) — сразу с битом интенсивности
+            // Яркий текст (90-97)
             int color_idx = p - 90;
             current_color = (current_color & 0xF0) | ansi_to_vga[color_idx] | 0x08;
         }
@@ -143,7 +143,6 @@ void video_putchar(char c) {
         }
     }
 
-    // --- Standard Character Logic ---
     if (c == '\n') {
         cursor_x = 0;
         cursor_y++;

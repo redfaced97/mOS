@@ -11,7 +11,22 @@ typedef __builtin_va_list va_list;
 
 static char format_buffer[32];
 
-// Внутренняя логика
+char* short_to_hex(unsigned short n) {
+    static char hex_str[7];
+    const char *hex_chars = "0123456789ABCDEF";
+
+    hex_str[0] = '0';
+    hex_str[1] = 'x';
+    hex_str[2] = hex_chars[(n >> 12) & 0xF]; // Первые 4 бита
+    hex_str[3] = hex_chars[(n >> 8) & 0xF];  // Вторые 4 бита
+    hex_str[4] = hex_chars[(n >> 4) & 0xF];  // Третьи 4 бита
+    hex_str[5] = hex_chars[n & 0xF];         // Последние 4 бита
+    hex_str[6] = '\0';
+
+    return hex_str;
+}
+
+
 static char* _num_to_str(long n, int is_signed) {
     unsigned long un = (unsigned long)n;
     char *ptr = &format_buffer[31];
@@ -36,7 +51,6 @@ static char* _num_to_str(long n, int is_signed) {
     return ptr;
 }
 
-// Новые имена функций:
 char* int_to_char(int n)            { return _num_to_str((long)n, 1); }
 char* long_to_char(long n)          { return _num_to_str(n, 1);       }
 char* short_to_char(short n)        { return _num_to_str((long)n, 1); }
@@ -56,8 +70,6 @@ char* float_to_char(float n, int precision) {
 
     long ipart = (long)n;
     float fpart = n - (float)ipart;
-
-    // Используем нашу новую функцию для целой части
     char* s_ipart = long_to_char(ipart);
     while(*s_ipart) *ptr++ = *s_ipart++;
 
@@ -67,8 +79,6 @@ char* float_to_char(float n, int precision) {
 
         long ifpart = (long)(fpart + 0.5f);
         char* s_fpart = long_to_char(ifpart);
-
-        // Добор ведущих нулей (например, для 0.05)
         int len = 0;
         for(char* t = s_fpart; *t; t++) len++;
         for(int i = 0; i < (precision - len); i++) *ptr++ = '0';
@@ -113,7 +123,6 @@ void _kpanic(int error_code) {
     kprint(int_to_char(system_tick));
     kprint("\n\n\n--//   Please reboot computer to manually!\n");
 
-    // Отключаем курсор, чтобы не мигал на красном фоне
     video_cursor(0);
 
     while(1) {
@@ -141,7 +150,6 @@ void kprintf(const char *fmt, ...) {
                     break;
                 }
                 case 'f':
-                    // В вариативных функциях float всегда передается как double
                     kprint(float_to_char((float)va_arg(args, double), 2));
                     break;
                 case 'c':
@@ -165,19 +173,24 @@ void kprintf(const char *fmt, ...) {
 void _klog(const char *str, int status) {
 
     switch (status) {
-        case 0: kprintf("\033[37m[  \033[92mOK\033[37m  ]\033[0m %s\n", str); break;
-        case 1: kprintf("\033[37m[ \033[92mINFO\033[37m ]\033[0m %s\n", str); break;
-        case 2: kprintf("\033[37m[ \033[93mWARN\033[37m ]\033[0m %s\n", str); break;
-        case 3: kprintf("\033[37m[\033[91mFAILED\033[37m]\033[0m %s\n", str); break;
-        default: kprintf("[ LOG  ] %s\n", str); break;
+        case 0: kprintf(" \033[37m[  \033[92mOK\033[37m  ]\033[0m %s\n", str); break;
+        case 1: kprintf(" \033[37m[ \033[92mINFO\033[37m ]\033[0m %s\n", str); break;
+        case 2: kprintf(" \033[37m[ \033[93mWARN\033[37m ]\033[0m %s\n", str); break;
+        case 3: kprintf(" \033[37m[\033[91mFAILED\033[37m]\033[0m %s\n", str); break;
+        default: kprintf(" [ LOG  ] %s\n", str); break;
     }
 }
 
-void __stack_chk_fail(void) {
-    _kpanic(0); // Вызываем панику, если стек поврежден
+int kstrcmp(const char *s1, const char *s2) {
+    while (*s1 && (*s1 == *s2)) { s1++; s2++; }
+    return *(unsigned char *)s1 - *(unsigned char *)s2;
 }
 
-// Для некоторых версий GCC/линкера (особенно на i386)
+
+void __stack_chk_fail(void) {
+    _kpanic(0);
+}
+
 void __stack_chk_fail_local(void) {
     __stack_chk_fail();
 }

@@ -40,5 +40,5 @@ int init_gdt() {
     gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF); // Data
 
     gdt_flush((unsigned int)&gp);
-    return 0; // Настройка успешна
+    return 0;
 }

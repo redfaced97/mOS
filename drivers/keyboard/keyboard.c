@@ -27,13 +27,6 @@ unsigned char kbd_map_shift[128] = {
     'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', 0, '*', 0, ' ', 0
 };
 
-// Сравнивание строк
-int kstrcmp(const char *s1, const char *s2) {
-    while (*s1 && (*s1 == *s2)) { s1++; s2++; }
-    return *(unsigned char *)s1 - *(unsigned char *)s2;
-}
-
-// Очистка входного буффера
 void clear_input_buffer() {
     for (int i = 0; i < INPUT_BUFFER_SIZE; i++) input_buffer[i] = 0;
     buffer_idx = 0;
@@ -43,12 +36,11 @@ void clear_input_buffer() {
 void keyboard_handler_main() {
     unsigned char scancode = inb(0x60);
 
-    // Обработка отпускания клавиш
     if (scancode & 0x80) {
         unsigned char released = scancode & 0x7F;
         if (released == 0x2A || released == 0x36) shift = 0;
     }
-    // Логика работы клавы
+
     else {
         if (scancode == 0x2A || scancode == 0x36) {
             shift = 1;
@@ -67,7 +59,6 @@ void keyboard_handler_main() {
         } else {
             char c = shift ? kbd_map_shift[scancode] : kbd_map[scancode];
 
-            // Проверка на капс-лок
             if (caps_lock) {
                 if (c >= 'a' && c <= 'z') c -= 32;
                 else if (c >= 'A' && c <= 'Z') c += 32;
@@ -79,5 +70,5 @@ void keyboard_handler_main() {
             }
         }
     }
-    outb(0x20, 0x20);   //Сигнал завершения прерывания
+    outb(0x20, 0x20);
 }

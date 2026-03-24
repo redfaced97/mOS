@@ -1,8 +1,7 @@
 #ifndef TIMERS_H
 #define TIMERS_H
 
-void timer_handler();
-
-void set_timer(unsigned long frequency);
+void IRQ0_handler();
+int  IRQ0_set_freq(unsigned long frequency);
 
 #endif

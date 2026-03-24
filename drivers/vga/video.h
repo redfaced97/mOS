@@ -34,7 +34,6 @@
 
 short make_color(const short fore, const short back);
 
-// Прототипы (говорим компилятору, что функции есть где-то еще)
 void video_clear(unsigned short bg);
 void video_set_cursor(int x, int y);
 void video_set_color(short fg, short bg);
