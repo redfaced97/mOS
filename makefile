@@ -1,33 +1,49 @@
-# 1. Находим ВСЕ исходники
+# Makefile для mOS
+
+# ----------------------------
+# 1. Находим все исходники
 C_SOURCES := $(shell find . -name '*.c')
 ASM_SOURCES := $(shell find . -name '*.asm')
 
-# 2. Генерируем полный список объектных файлов
-ALL_OBJ := $(C_SOURCES:.c=.o) $(ASM_SOURCES:.asm=.o)
+# ----------------------------
+# 2. Генерируем объектные файлы
+C_OBJS := $(C_SOURCES:.c=.o)
+ASM_OBJS := $(ASM_SOURCES:.asm=.o)
 
-# 3. Указываем путь к вашему входному файлу (замените путь, если он в подпапке)
+# ----------------------------
+# 3. Указываем точку входа
 ENTRY_OBJ := ./entry.o
 
-# 4. Формируем список для линковки: ENTRY первым, остальные — следом (без дубликатов)
-# Функция filter-out удалит entry.o из общего списка, чтобы он не встречался дважды
-OBJ := $(ENTRY_OBJ) $(filter-out $(ENTRY_OBJ), $(ALL_OBJ))
+# ----------------------------
+# 4. Полный список объектов для линковки (ENTRY первым)
+OBJ := $(ENTRY_OBJ) $(filter-out $(ENTRY_OBJ), $(C_OBJS) $(ASM_OBJS))
 
-# Флаги
-CFLAGS = -m32 -ffreestanding -c -I.
+# ----------------------------
+# 5. Флаги
+CFLAGS = -m32 -ffreestanding -Wall -Wextra -I.
+NASMFLAGS = -f elf32
 LDFLAGS = -m elf_i386 -T linker.ld
 
-kernel: ${OBJ}
-	   ld ${LDFLAGS} -o $@ $^
+# ----------------------------
+# 6. Цель сборки ядра
+kernel: $(OBJ)
+	ld $(LDFLAGS) -o $@ $^
 
+# ----------------------------
+# 7. Правила сборки
 %.o: %.c
-	   gcc ${CFLAGS} $< -o $@
+	gcc $(CFLAGS) -c $< -o $@
 
 %.o: %.asm
-	   nasm -f elf32 $< -o $@
+	nasm $(NASMFLAGS) $< -o $@
 
+# ----------------------------
+# 8. Очистка
 clean:
-	   find . -name "*.o" -delete
-	   rm -f kernel
+	find . -name "*.o" -delete
+	rm -f kernel
 
+# ----------------------------
+# 9. Запуск в QEMU
 run: kernel
-	       qemu-system-x86_64 -kernel kernel --enable-kvm -m 512 -monitor stdio -hda hdd.img
+	qemu-system-x86_64 -s -kernel kernel --enable-kvm -m 512 -monitor stdio -hda hdd.img 

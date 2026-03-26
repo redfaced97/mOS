@@ -2,6 +2,19 @@
 #include "kernel_setup.h"
 #include "kernel.h"
 
+#include "sys/ports.h"
+#include "timers/timer.h"
+
+#include "sys/gdt.h"
+#include "sys/idt.h"
+
+#include "func/kernel_funcs.h"
+
+#include "drivers/vga/video.h"
+#include "drivers/keyboard/keyboard.h"
+
+#include "drivers/ata/ata.h"
+#include "drivers/fs/fat32/fat32.h"
 
 volatile unsigned int system_tick = 0;
 volatile unsigned int system_sec  = 0;
@@ -39,12 +52,14 @@ void kinit() {
     }
 
 
-    __asm__ __volatile__("sti");
 
-    if (fat32_init() == 1) {
-        fat32_load_bpb();
-        fat32_list_root();
-    }
+
+    // if (fat32_init() == 1) {
+    //     fat32_load_bpb();
+    //     fat32_list_root();
+    // }
+
+    __asm__ __volatile__("sti");
     app();
     __asm__ __volatile__("hlt");
 }
@@ -55,15 +70,6 @@ void app() {
 
     video_set_color(VIDEO_COLOR_WHITE, VIDEO_COLOR_BLACK);
     clear_input_buffer();
-
-    static unsigned char file_buffer[512];
-    for(int i = 0; i < 512; i++) file_buffer[i] = 0;
-
-    fat32_read_file("TEST    TXT", (char*)file_buffer);
-
-    kprint("DATA: ");
-    kprint((char*)file_buffer);
-    kprint("\n");
 
     kprint("\n");
     kprint("\nmOS kernel Shell ready. Type 'help'.\n> ");

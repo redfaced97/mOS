@@ -91,44 +91,45 @@ char* float_to_char(float n, int precision) {
 }
 
 
-void _kpanic(int error_code) {
+// void _kpanic(int int_no, int error_code) {
 
-    __asm__ __volatile__("cli");
+//     __asm__ __volatile__("cli");
 
-    // 0-9   - Cистемные ошибки
-    // 10-20 - Пользовательские ошибки
+//     // 0-9   - Cистемные ошибки
+//     // 10-20 - Пользовательские ошибки
 
-    const char* error_msg = "";
+//     const char* error_msg = "";
 
-    if(error_code == 0) {
-      error_msg = "UNHANDLED INTERRUPT!";
-    }
-
-
-    video_clear(VIDEO_COLOR_BLACK);
-    video_set_color(VIDEO_COLOR_YELLOW, VIDEO_COLOR_BLACK);
+//     if(error_code == 0) {
+//       error_msg = "UNHANDLED INTERRUPT!";
+//     }
 
 
-    kprint("--//   CRITICAL ERROR!\n");
-    kprint("INFO - KERNEL PANIC\n\n");
-    if(error_code <= 9) {
-      video_set_color(VIDEO_COLOR_YELLOW, VIDEO_COLOR_BLACK);
-    }
-    if(error_code >= 10) {
-      video_set_color(VIDEO_COLOR_LIGHT_GREEN, VIDEO_COLOR_BLACK);
-    }
-    kprint("\nError code - "); kprint(int_to_char(error_code)); kprint("\nMESSAGE - "); kprint(error_msg);
-    video_set_color(VIDEO_COLOR_YELLOW, VIDEO_COLOR_BLACK);
-    kprint("\n");
-    kprint(int_to_char(system_tick));
-    kprint("\n\n\n--//   Please reboot computer to manually!\n");
+//     video_clear(VIDEO_COLOR_BLACK);
+//     video_set_color(VIDEO_COLOR_YELLOW, VIDEO_COLOR_BLACK);
 
-    video_cursor(0);
 
-    while(1) {
-        __asm__ __volatile__("hlt");
-    }
-}
+//     kprint("--//   CRITICAL ERROR!\n");
+//     kprint("INFO - KERNEL PANIC\n\n");
+//     if(error_code <= 9) {
+//       video_set_color(VIDEO_COLOR_YELLOW, VIDEO_COLOR_BLACK);
+//     }
+//     if(error_code >= 10) {
+//       video_set_color(VIDEO_COLOR_LIGHT_GREEN, VIDEO_COLOR_BLACK);
+//     }
+//     kprint("\nError code - "); kprint(int_to_char(error_code)); kprint("\nMESSAGE - "); kprint(error_msg);
+//     video_set_color(VIDEO_COLOR_YELLOW, VIDEO_COLOR_BLACK);
+//     kprint("\n");
+//     kprint(int_to_char(system_tick));
+//     kprint("\n\n\n--//   Please reboot computer to manually!\n");
+
+//     video_cursor(0);
+
+//     while(1) {
+//         __asm__ __volatile__("hlt");
+//     }
+// }
+
 
 void kprintf(const char *fmt, ...) {
     va_list args;
@@ -170,6 +171,16 @@ void kprintf(const char *fmt, ...) {
     va_end(args);
 }
 
+void _kpanic(int int_no, int error_code)
+{
+    kprintf("\n=== KERNEL PANIC ===\n");
+    kprintf("INT: %d\n", int_no);
+    kprintf("ERR: %d\n", error_code);
+    kprintf("TICKS: %d\n", system_tick);
+
+    while (1) __asm__("hlt");
+}
+
 void _klog(const char *str, int status) {
 
     switch (status) {
@@ -188,7 +199,7 @@ int kstrcmp(const char *s1, const char *s2) {
 
 
 void __stack_chk_fail(void) {
-    _kpanic(0);
+    _kpanic(-1, 0);
 }
 
 void __stack_chk_fail_local(void) {

@@ -4,6 +4,6 @@
 extern volatile unsigned int system_tick;
 extern volatile unsigned int system_sec;
 
-void _kpanic(int error_code);
+void _kpanic(int int_no, int error_code);
 
 #endif
